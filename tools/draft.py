@@ -1,10 +1,12 @@
 import anthropic
-from prompts.post_drafting import WRITER_SYSTEM_PROMPT
+
 from config import WRITER_MODEL
+from prompts.post_drafting import WRITER_SYSTEM_PROMPT
 
 
-def draft_linkedin_post(topic: str, tone: str, context: str = "") -> str:
-    client = anthropic.Anthropic()
+def draft_linkedin_post(topic: str, tone: str, context: str = "", client: anthropic.Anthropic = None) -> str:
+    if client is None:
+        client = anthropic.Anthropic()
 
     response = client.messages.create(
         model=WRITER_MODEL,

@@ -10,7 +10,6 @@ STATE_PATH = os.path.join(os.path.dirname(__file__), "state_store", "agent_state
 
 class AgentState(Enum):
     IDLE = "idle"
-    RESEARCHING = "researching"
     EMAILING_TOPICS = "emailing_topics"
     WAITING_FOR_REPLY = "waiting_for_reply"
     DRAFTING = "drafting"
@@ -22,7 +21,6 @@ class AgentState(Enum):
 @dataclass
 class AgentContext:
     state: AgentState = AgentState.IDLE
-    topics: list = field(default_factory=list)
     selected_topic: Optional[str] = None
     tone: Optional[str] = None
     draft: Optional[str] = None
@@ -34,7 +32,6 @@ class AgentContext:
     last_poll_at: Optional[str] = None
     poll_count: int = 0
     max_polls: int = 60
-    poll_interval_sec: int = 300
 
     def save(self):
         os.makedirs(os.path.dirname(STATE_PATH), exist_ok=True)

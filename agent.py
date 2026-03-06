@@ -77,7 +77,7 @@ TOOLS = [
 ]
 
 
-def execute_tool(name: str, inputs: dict, ctx: AgentContext) -> str:
+def execute_tool(name: str, inputs: dict, ctx: AgentContext, anthropic_client: anthropic.Anthropic = None) -> str:
     """Execute a tool call and return the result as a string."""
     log.info(f"Executing tool: {name} with inputs: {json.dumps(inputs)[:200]}")
 
@@ -120,6 +120,7 @@ def execute_tool(name: str, inputs: dict, ctx: AgentContext) -> str:
             inputs["topic"],
             inputs["tone"],
             inputs.get("context", ""),
+            client=anthropic_client,
         )
         ctx.draft = draft
         ctx.state = AgentState.EMAILING_DRAFT
@@ -186,7 +187,7 @@ def run_agent():
         return
 
     # Build system prompt
-    context_summary = f"State={ctx.state.value}, topics={len(ctx.topics)}, poll_count={ctx.poll_count}"
+    context_summary = f"State={ctx.state.value}, poll_count={ctx.poll_count}"
     if ctx.selected_topic:
         context_summary += f", selected_topic={ctx.selected_topic}"
     if ctx.tone:
@@ -224,7 +225,7 @@ def run_agent():
             tool_results = []
             for block in response.content:
                 if block.type == "tool_use":
-                    result = execute_tool(block.name, block.input, ctx)
+                    result = execute_tool(block.name, block.input, ctx, anthropic_client=client)
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": block.id,
